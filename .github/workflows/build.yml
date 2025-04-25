@@ -3,11 +3,14 @@ name: Build TAF
 on:
   push:
     branches:
-      - '**'
+      - main
+      - develop
+      - feature/*
 
   pull_request:
     branches:
       - main
+      - develop
 
 jobs:
   build:
