@@ -1,10 +1,10 @@
 package step;
 
 import com.epam.reportportal.annotations.Step;
-import dto.LaunchTableHeaders;
-import org.junit.jupiter.api.Assertions;
 import dto.FilterOption;
 import page.LaunchesPage;
+
+import java.util.List;
 
 public class LaunchesStep {
     LaunchesPage launchesPage = new LaunchesPage();
@@ -23,17 +23,17 @@ public class LaunchesStep {
     }
 
     @Step
-    public void compareFilterType(final String type) {
-        Assertions.assertEquals(type, launchesPage.getFilterType(), "Filter types are not equal.");
+    public String getAdjustedFilterType() {
+        return launchesPage.getFilterType();
     }
 
     @Step
-    public void verifyIfAllLaunchHasDeleteOption() {
-        Assertions.assertEquals(launchesPage.getLaunchHamburgerIcon().size(), launchesPage.getDeleteButton().size(), "Hamburger menu doesn't contains delete button.");
+    public boolean verifyIfAllLaunchHasDeleteOption() {
+        return launchesPage.getLaunchHamburgerIcon().size() == launchesPage.getDeleteButton().size();
     }
 
     @Step
-    public void verifyIfHeaderPresentOnTheTable(final LaunchTableHeaders header) {
-        Assertions.assertTrue(launchesPage.getTableHeaders().contains(header.getHeader()), "Table doesn't contain the header: " + header);
+    public List<String> getHeaderPresentOnTheTable() {
+       return launchesPage.getTableHeaders();
     }
 }

@@ -5,6 +5,7 @@ import baseTest.UserParameterResolver;
 import dto.FilterOption;
 import dto.LaunchTableHeaders;
 import model.User;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,7 +25,7 @@ public class LaunchePageJUTest extends BaseTest {
         final LaunchesStep launchesStep = new LaunchesStep();
         loginStep.login(user).openLaunchesPage();
         launchesStep.selectFilter(option);
-        launchesStep.compareFilterType(option.getType());
+        Assertions.assertEquals(option.getType(), launchesStep.getAdjustedFilterType(), "Filter types are not equal.");
     }
 
 
@@ -34,7 +35,7 @@ public class LaunchePageJUTest extends BaseTest {
         final LoginStep loginStep = new LoginStep();
         final LaunchesStep launchesStep = new LaunchesStep();
         loginStep.login(user).openLaunchesPage();
-        launchesStep.verifyIfAllLaunchHasDeleteOption();
+        Assertions.assertTrue(launchesStep.verifyIfAllLaunchHasDeleteOption(), "Hamburger menu doesn't contains delete button.");
     }
 
     @ParameterizedTest
@@ -44,6 +45,6 @@ public class LaunchePageJUTest extends BaseTest {
         final LoginStep loginStep = new LoginStep();
         final LaunchesStep launchesStep = new LaunchesStep();
         loginStep.login(user).openLaunchesPage();
-        launchesStep.verifyIfHeaderPresentOnTheTable(header);
+        Assertions.assertTrue(launchesStep.getHeaderPresentOnTheTable().contains(header.getHeader()), "Table doesn't contain the header: " + header);
     }
 }

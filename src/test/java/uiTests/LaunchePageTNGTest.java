@@ -1,6 +1,7 @@
 package uiTests;
 
 import baseTest.BaseTest;
+import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
@@ -30,7 +31,7 @@ public class LaunchePageTNGTest extends BaseTest {
         final LaunchesStep launchesStep = new LaunchesStep();
         loginStep.login(user).openLaunchesPage();
         launchesStep.selectFilter(option);
-        launchesStep.compareFilterType(option.getType());
+        Assert.assertEquals(option.getType(), launchesStep.getAdjustedFilterType(), "Filter types are not equal.");
     }
 
     @DataProvider(name="usedCredentials")
@@ -45,7 +46,7 @@ public class LaunchePageTNGTest extends BaseTest {
         final LoginStep loginStep = new LoginStep();
         final LaunchesStep launchesStep = new LaunchesStep();
         loginStep.login(user).openLaunchesPage();
-        launchesStep.verifyIfAllLaunchHasDeleteOption();
+        Assert.assertTrue(launchesStep.verifyIfAllLaunchHasDeleteOption(), "Hamburger menu doesn't contains delete button.");
     }
 
     @DataProvider(name="tableHeaders", parallel = true)
@@ -67,6 +68,6 @@ public class LaunchePageTNGTest extends BaseTest {
         final LoginStep loginStep = new LoginStep();
         final LaunchesStep launchesStep = new LaunchesStep();
         loginStep.login(user).openLaunchesPage();
-        launchesStep.verifyIfHeaderPresentOnTheTable(header);
+        Assert.assertTrue(launchesStep.getHeaderPresentOnTheTable().contains(header.getHeader()), "Table doesn't contain the header: " + header);
     }
 }
