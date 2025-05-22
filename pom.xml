@@ -15,7 +15,7 @@
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.source}</maven.compiler.target>
         <aspectj.version>1.9.19</aspectj.version>
-        <selenium.version>4.8.1</selenium.version>
+        <selenium.version>4.19.1</selenium.version>
         <reportPortalTestNg.version>5.3.1</reportPortalTestNg.version>
         <reportPortalLog4j.version>5.1.8</reportPortalLog4j.version>
         <testng.version>7.8.0</testng.version>
@@ -23,6 +23,7 @@
         <lombok.version>1.18.30</lombok.version>
         <junit.version>5.12.1</junit.version>
         <reportPortalJunit.version>5.3.5</reportPortalJunit.version>
+        <cucumber.version>7.20.1</cucumber.version>
     </properties>
 
     <dependencies>
@@ -92,26 +93,19 @@
             <version>${lombok.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.epam.reportportal</groupId>
-            <artifactId>agent-java-junit5</artifactId>
-            <version>${reportPortalJunit.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <version>2.0.9</version>
         </dependency>
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.12.1</version>
-            <scope>compile</scope>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${cucumber.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-testng</artifactId>
+            <version>7.20.1</version>
         </dependency>
     </dependencies>
 
@@ -120,30 +114,15 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>3.2.5</version> <!-- новіша стабільна версія -->
                 <configuration>
-
-                    <!-- Uncomment it if you don't want your build to be failed in case of test errors -->
-                    <testFailureIgnore>true</testFailureIgnore>
-
-                    <!-- For nested steps only -->
-                    <argLine>
-                        -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
-                    </argLine>
-
-                    <suiteXmlFiles>
-                        <xmlFile>suites/logging_tests.xml</xmlFile>
-                        <xmlFile>suites/nested_steps_tests.xml</xmlFile>
-                    </suiteXmlFiles>
-                    <!-- ADD working directory to get TestNG know we to find suite files -->
-                    <workingDirectory>./</workingDirectory>
-
-                    <properties>
-                        <property>
-                            <name>usedefaultlisteners</name>
-                            <value>false</value>
-                        </property>
-                    </properties>
+                    <parallel>methods</parallel>
+                    <threadCount>10</threadCount>
+                    <forkCount>2</forkCount>
+                    <testFailureIgnore>false</testFailureIgnore>
+                    <includes>
+                        <include>**/TestRunner.java</include>
+                    </includes>
                 </configuration>
             </plugin>
         </plugins>
