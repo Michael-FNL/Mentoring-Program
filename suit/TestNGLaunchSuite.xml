@@ -1,0 +1,8 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="Login test" parallel="methods" thread-count="5">
+    <test name="Launche test cases">
+        <classes>
+            <class name="uiTests.LaunchePageTNGTest"/>
+        </classes>
+    </test>
+</suite>
