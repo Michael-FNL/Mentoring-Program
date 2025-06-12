@@ -24,6 +24,9 @@
         <junit.version>5.12.1</junit.version>
         <reportPortalJunit.version>5.3.5</reportPortalJunit.version>
         <cucumber.version>7.20.1</cucumber.version>
+        <restassured.version>5.5.0</restassured.version>
+        <jackson.version>2.18.0</jackson.version>
+        <junit-jupiter.version>5.11.2</junit-jupiter.version>
     </properties>
 
     <dependencies>
@@ -106,6 +109,22 @@
             <groupId>io.cucumber</groupId>
             <artifactId>cucumber-testng</artifactId>
             <version>7.20.1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <version>${restassured.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
