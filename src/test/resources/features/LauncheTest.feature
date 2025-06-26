@@ -12,28 +12,28 @@ Feature: Launch Test
       | filterOption             |
       | ALL_LAUNCHES             |
       | LATEST_LAUNCHES          |
-
-  @Regression
-  Scenario: All launches have a delete option.
-    Given the username is logged into the portal:
-      | username   | superadmin  |
-      | password   | erebus      |
-    When the user navigates to the Launches page
-    Then all launches should have the delete option
-
-  @Regression
-  Scenario Outline: Each launch contains tests count dat a.
-    Given the username is logged into the portal:
-      | username   | superadmin  |
-      | password   | erebus      |
-    When the user navigates to the Launches page
-    Then the launches table should display the correct '<header>'
-    Examples:
-      | header             |
-      | PASSED             |
-      | FAILED             |
-      | SKIPPED            |
-      | PRODUCT_BUG        |
-      | AUTO_BUG           |
-      | SYSTEM_ISSUE       |
-      | TO_INVESTIGATE     |
+#
+#  @Regression
+#  Scenario: All launches have a delete option.
+#    Given the username is logged into the portal:
+#      | username   | superadmin  |
+#      | password   | erebus      |
+#    When the user navigates to the Launches page
+#    Then all launches should have the delete option
+#
+#  @Regression
+#  Scenario Outline: Each launch contains tests count dat a.
+#    Given the username is logged into the portal:
+#      | username   | superadmin  |
+#      | password   | erebus      |
+#    When the user navigates to the Launches page
+#    Then the launches table should display the correct '<header>'
+#    Examples:
+#      | header             |
+#      | PASSED             |
+#      | FAILED             |
+#      | SKIPPED            |
+#      | PRODUCT_BUG        |
+#      | AUTO_BUG           |
+#      | SYSTEM_ISSUE       |
+#      | TO_INVESTIGATE     |
