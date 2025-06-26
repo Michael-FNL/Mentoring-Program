@@ -1,18 +1,15 @@
 package blocks;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.By;
 import uielement.BaseUiComponent;
+import com.codeborne.selenide.SelenideElement;
+
+import static com.codeborne.selenide.Selenide.$;
 
 public abstract class NavigationMenu<T extends NavigationMenu> extends BaseUiComponent {
-    @FindBy(xpath = "//span[text()='Dashboards']//ancestor::span/i")
-    WebElement dashboardsSideBarIcon;
-
-    @FindBy(xpath = "//span[text()='Launches']//ancestor::span/i")
-    WebElement launchesSideBarIcon;
-
-    @FindBy(xpath = "//span[text()='Filters']//ancestor::span/i")
-    WebElement filtersSideBarIcon;
+    private final SelenideElement dashboardsSideBarIcon = $(By.xpath("//span[text()='Dashboards']//ancestor::span/i"));
+    private final SelenideElement launchesSideBarIcon = $(By.xpath("//span[text()='Launches']//ancestor::span/i"));
+    private final SelenideElement filtersSideBarIcon = $(By.xpath("//span[text()='Filters']//ancestor::span/i"));
 
     public T openDashboardPage() {
         dashboardsSideBarIcon.click();

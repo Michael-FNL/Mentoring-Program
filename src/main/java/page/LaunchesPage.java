@@ -1,33 +1,25 @@
 package page;
 
+import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.ElementsCollection;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.By;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$$;
+
 public class LaunchesPage extends BasePage{
 
-    @FindBy(css = "[class*=allLatestDropdown__arrow]")
-    private WebElement filterButton;
-
-    @FindBy(xpath = "//div[contains(@class,'allLatestDropdown__option')]/div[text()='All launches']")
-    private WebElement allLaunchesFilter;
-
-    @FindBy(xpath = "//div[contains(@class,'allLatestDropdown__option')]/div[text()='Latest launches']")
-    private WebElement latestLaunchesFilter;
-
-    @FindBy(xpath = "//span[contains(@class,'breadcrumb__link-item')]/span")
-    private WebElement filterType;
-
-    @FindBy(css = "[class*=hamburger__hamburger-icon--]")
-    private List<WebElement> launchHamburgerIcons;
-
-    @FindBy(xpath = "//div[contains(@class, 'hamburger__hamburger-menu-actions')]/div[text()='Delete']")
-    private List<WebElement> deleteButton;
-
-    @FindBy(xpath = "//span[contains(@class, 'headerCell__title-full')]")
-    private List<WebElement> tableHeaders;
+    private final SelenideElement filterButton = $(By.cssSelector("[class*=allLatestDropdown__arrow]"));
+    private final SelenideElement allLaunchesFilter = $(By.xpath("//div[contains(@class,'allLatestDropdown__option')]/div[text()='All launches']"));
+    private final SelenideElement latestLaunchesFilter = $(By.xpath("//div[contains(@class,'allLatestDropdown__option')]/div[text()='Latest launches']"));
+    private final SelenideElement filterType = $(By.xpath("//span[contains(@class,'breadcrumb__link-item')]/span"));
+    private final ElementsCollection launchHamburgerIcons = $$(By.cssSelector("[class*=hamburger__hamburger-icon--]"));
+    private final ElementsCollection deleteButton = $$(By.xpath("//div[contains(@class, 'hamburger__hamburger-menu-actions')]/div[text()='Delete']"));
+    private final ElementsCollection tableHeaders = $$(By.xpath("//span[contains(@class, 'headerCell__title-full')]"));
 
     public LaunchesPage() {
         super();
@@ -49,11 +41,11 @@ public class LaunchesPage extends BasePage{
         return filterType.getText();
     }
 
-    public List<WebElement> getLaunchHamburgerIcon() {
+    public ElementsCollection getLaunchHamburgerIcon() {
         return launchHamburgerIcons;
     }
 
-    public List<WebElement> getDeleteButton() {
+    public ElementsCollection getDeleteButton() {
         return deleteButton;
     }
 

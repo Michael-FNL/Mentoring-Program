@@ -1,27 +1,24 @@
 package page;
 
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
+import com.codeborne.selenide.SelenideElement;
+import org.openqa.selenium.By;
 import util.Config;
 import util.DriverCreator;
+
+import static com.codeborne.selenide.Selenide.$;
 
 
 public class LoginPage extends BasePage {
 
-    @FindBy(xpath = "//*[@placeholder='Login']")
-    private WebElement nameField;
+    private final SelenideElement nameField = $(By.xpath("//*[@placeholder='Login']"));
 
-    @FindBy(xpath = "//*[@placeholder='Password']")
-    private WebElement passwordField;
+    private final SelenideElement passwordField = $(By.xpath("//*[@placeholder='Password']"));
 
-    @FindBy(xpath = "//*[contains(@class,'loginPage__logo')]")
-    private WebElement title;
+    private final SelenideElement title = $(By.xpath("//*[contains(@class,'loginPage__logo')]"));
 
-    @FindBy(xpath = "//*[@type='submit']")
-    private WebElement submitButton;
+    private final SelenideElement submitButton = $(By.xpath("//*[@type='submit']"));
 
-    @FindBy(xpath = "//*[contains(@class,'notificationItem__error')]")
-    private WebElement errorMessage;
+    private final SelenideElement errorMessage = $(By.xpath("//*[contains(@class,'notificationItem__error')]"));
 
     public LoginPage() {
         super();
