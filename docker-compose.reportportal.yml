@@ -19,7 +19,7 @@ services:
       - reportportal
 
   service-authorization:
-    image: reportportal/service-authorization:5.12.1
+    image: reportportal/service-authorization:5.13.0
     depends_on:
       - service-api
     environment:
