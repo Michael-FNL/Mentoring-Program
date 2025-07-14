@@ -6,7 +6,6 @@ on:
       - main
       - develop
       - feature/*
-
   pull_request:
     branches:
       - main
@@ -15,6 +14,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    services:
+      selenium-hub:
+        image: selenium/hub:4.10.0
+        ports:
+          - 4444:4444
+      chrome:
+        image: selenium/node-chrome:4.10.0
+        options: --shm-size=2g
+        env:
+          SE_EVENT_BUS_HOST: selenium-hub
+          SE_EVENT_BUS_PUBLISH_PORT: 4442
+          SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
 
     steps:
       - uses: actions/checkout@v3
@@ -25,5 +37,25 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Start ReportPortal stack
+        run: docker-compose -f docker-compose.reportportal.yml up -d
+
+      - name: Wait for ReportPortal API to be ready
+        run: |
+          echo "Waiting for ReportPortal API..."
+          until curl -sSf http://localhost:8080/api/v1/launch; do
+            sleep 10
+          done
+          echo "ReportPortal is ready"
+
       - name: Build and Test
-        run: mvn clean install
+        env:
+          REMOTE_URL: http://localhost:4444/wd/hub
+          RUN_MODE: remote
+          HEADLESS_MODE: true
+          REPORT_PORTAL_URL: http://localhost:8080
+        run: mvn clean test -Dtest=*Test -DrunMode=remote -DremoteUrl=http://localhost:4444/wd/hub -DheadlessMode=true
+
+      - name: Tear down ReportPortal
+        if: always()
+        run: docker-compose -f docker-compose.reportportal.yml down

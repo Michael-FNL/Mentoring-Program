@@ -1,0 +1,79 @@
+name: PR Regression Check
+
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  test-on-merge:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Start ReportPortal stack
+        run: docker-compose -f docker-compose.reportportal.yml up -d
+
+      - name: Wait for ReportPortal API to be ready
+        run: |
+          echo "Waiting for ReportPortal API..."
+          until curl -sSf http://localhost:8080/api/v1/launch; do
+            sleep 10
+          done
+          echo "ReportPortal is ready"
+
+      - name: Run Tests with Allure
+        env:
+          REPORT_PORTAL_URL: http://localhost:8080
+        run: mvn clean test
+
+      - name: Generate Allure Report
+        run: mvn allure:report
+
+      - name: Deploy Report to gh-pages
+        if: github.event.pull_request.merged == true
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: target/site/allure-maven-plugin
+          publish_branch: gh-pages
+          destination_dir: pr-${{ github.event.pull_request.number }}
+
+      - name: Checkout gh-pages branch
+        if: github.event.pull_request.merged == true
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Update index.html
+        if: github.event.pull_request.merged == true
+        run: |
+          cd gh-pages
+          DATE=$(date +%Y-%m-%d_%H-%M)
+          REPORT_LINK="pr-${{ github.event.pull_request.number }}/index.html"
+          echo "<li><a href=\"$REPORT_LINK\">PR #${{ github.event.pull_request.number }} Report $DATE</a></li>" >> index.html
+
+      - name: Commit and Push updated index.html
+        if: github.event.pull_request.merged == true
+        run: |
+          cd gh-pages
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add index.html
+          git commit -m "Add PR #${{ github.event.pull_request.number }} report link $DATE"
+          git push origin gh-pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tear down ReportPortal
+        if: always()
+        run: docker-compose -f docker-compose.reportportal.yml down

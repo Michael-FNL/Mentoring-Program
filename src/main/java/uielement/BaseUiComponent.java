@@ -13,6 +13,8 @@ import util.LoggingUtil;
 import java.time.Duration;
 
 public abstract class BaseUiComponent {
+    public static final int TIMEOUT = 30;
+
     private final WebDriver driver = DriverCreator.getDriver();
     private final WebDriverWait wait = DriverCreator.getWait();
 
@@ -26,13 +28,13 @@ public abstract class BaseUiComponent {
     }
 
     protected void waitForPageLoad() {
-        new WebDriverWait(driver, Duration.ofSeconds(30)).until(
+        new WebDriverWait(driver, Duration.ofSeconds(TIMEOUT)).until(
                 webDriver -> ((JavascriptExecutor) webDriver)
                         .executeScript("return document.readyState").equals("complete")
         );
     }
 
-    public void waitForElementToAppear(WebElement element) {
+    public void waitForElementToAppear(final WebElement element) {
         try {
             wait.until(ExpectedConditions.visibilityOf(element));
         } catch (TimeoutException e) {

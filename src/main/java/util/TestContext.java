@@ -6,11 +6,11 @@ import java.util.Map;
 public class TestContext {
     private final Map<String, Object> data = new HashMap<>();
 
-    public <T> void set(String key, T value) {
+    public <T> void set(final String key, final T value) {
         data.put(key, value);
     }
 
-    public <T> T get(String key, Class<T> clazz) {
+    public <T> T get(final String key, final Class<T> clazz) {
         return clazz.cast(data.get(key));
     }
 }

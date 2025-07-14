@@ -1,0 +1,36 @@
+steps:
+  # ... (checkout, setup JDK, запуск ReportPortal, тестів, генерація Allure)
+
+  - name: Deploy Allure Report to GitHub Pages
+    uses: peaceiris/actions-gh-pages@v3
+    with:
+      github_token: ${{ secrets.GITHUB_TOKEN }}
+      publish_dir: target/site/allure-maven-plugin
+      publish_branch: gh-pages
+      destination_dir: nightly-report  # звіт за поточний запуск
+
+  # Ось сюди додаєш нові кроки для оновлення index.html
+
+  - name: Checkout gh-pages branch
+    uses: actions/checkout@v3
+    with:
+      ref: gh-pages
+      path: gh-pages
+
+  - name: Update index.html
+    run: |
+      cd gh-pages
+      DATE=$(date +%Y-%m-%d_%H-%M)
+      REPORT_LINK="nightly-report/$DATE/index.html"
+      echo "<li><a href=\"$REPORT_LINK\">Test Report $DATE</a></li>" >> index.html
+
+  - name: Commit and Push updated index.html
+    run: |
+      cd gh-pages
+      git config user.name "github-actions"
+      git config user.email "actions@github.com"
+      git add index.html
+      git commit -m "Add new test report link $DATE"
+      git push origin gh-pages
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

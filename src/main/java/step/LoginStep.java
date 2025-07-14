@@ -15,7 +15,7 @@ public class LoginStep {
     }
 
     @Step
-    public LaunchesPage login(User user) {
+    public LaunchesPage login(final User user) {
         loginPage.fillNameField(user.getUsername())
                 .fillPasswordField(user.getPassword())
                 .clickSubmitButton();
