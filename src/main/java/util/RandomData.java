@@ -1,6 +1,5 @@
 package util;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import java.security.SecureRandom;
 
 public class RandomData {
@@ -10,10 +9,16 @@ public class RandomData {
     public static final int RANDOM_NUMBER_LENGTH_TEN = 10;
 
     private static final SecureRandom secureRandom = new SecureRandom();
+    private static final String ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private static final String ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
     public static String getRandomString() {
-        // Генеруємо рядок з точною довжиною RANDOM_STRING_LENGTH
-        return RandomStringUtils.randomAlphabetic(RANDOM_STRING_LENGTH);
+        StringBuilder sb = new StringBuilder(RANDOM_STRING_LENGTH);
+        for (int i = 0; i < RANDOM_STRING_LENGTH; i++) {
+            int index = secureRandom.nextInt(ALPHABET.length());
+            sb.append(ALPHABET.charAt(index));
+        }
+        return sb.toString();
     }
 
     public static String getRandomString(final String name) {
@@ -21,19 +26,21 @@ public class RandomData {
     }
 
     public static Integer getRandomInteger() {
-        // Визначаємо довжину випадкового числа (між 1 і 2)
         int length = RANDOM_NUMBER_LENGTH_ONE + secureRandom.nextInt(RANDOM_NUMBER_LENGTH_TWO - RANDOM_NUMBER_LENGTH_ONE + 1);
-
         StringBuilder sb = new StringBuilder(length);
         for (int i = 0; i < length; i++) {
-            int digit = secureRandom.nextInt(10); // цифра 0-9
+            int digit = secureRandom.nextInt(10);
             sb.append(digit);
         }
         return Integer.parseInt(sb.toString());
     }
 
     public static String getRandomAlphaNumeric() {
-        // Залишаємо як є — це не для безпеки
-        return RandomStringUtils.randomAlphanumeric(RANDOM_NUMBER_LENGTH_TEN);
+        StringBuilder sb = new StringBuilder(RANDOM_NUMBER_LENGTH_TEN);
+        for (int i = 0; i < RANDOM_NUMBER_LENGTH_TEN; i++) {
+            int index = secureRandom.nextInt(ALPHANUMERIC.length());
+            sb.append(ALPHANUMERIC.charAt(index));
+        }
+        return sb.toString();
     }
 }
