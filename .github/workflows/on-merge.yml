@@ -61,10 +61,12 @@ on:
           if: success()
           uses: peaceiris/actions-gh-pages@v4
           with:
-            github_token: ${{ secrets.GH_TOKEN }}
+            github_token: ${{ secrets.GITHUB_TOKEN }}
             publish_dir: ./target/allure-report
             publish_branch: gh-pages
             destination_dir: pr-report/${{ github.run_number }}
+            keep_files: true
+            enable_jekyll: false
 
         - name: Update index.html in gh-pages
           run: bash .github/scripts/update-index.sh
