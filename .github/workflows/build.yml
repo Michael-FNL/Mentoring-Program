@@ -11,6 +11,9 @@ on:
       - main
       - develop
 
+permissions:
+  contents: write
+
 jobs:
   build-and-test:
     runs-on: ubuntu-22.04
@@ -74,6 +77,8 @@ jobs:
           enable_jekyll: false
 
       - name: Update index.html in gh-pages
+        if: success()
         run: bash .github/scripts/update-index.sh
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}

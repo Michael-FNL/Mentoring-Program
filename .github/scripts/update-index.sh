@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 
 mkdir -p tmp-gh-pages
@@ -8,7 +9,9 @@ git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
 git remote add origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
 git fetch origin gh-pages
-git checkout origin/gh-pages
+
+# Створити локальну гілку gh-pages з origin/gh-pages
+git checkout -b gh-pages origin/gh-pages
 
 REPORT_PATHS=$(find . -mindepth 2 -maxdepth 2 -type d | grep -E "(master|nightly|pr-report)/[0-9]+$" | sort -r)
 
@@ -34,8 +37,6 @@ cat <<EOF >> index.html
 </html>
 EOF
 
-git config user.name "github-actions[bot]"
-git config user.email "github-actions[bot]@users.noreply.github.com"
 git add index.html
 git commit -m "Update index.html [skip ci]" || echo "No changes"
-git push https://x-access-token:${GH_TOKEN}@github.com/Michael-FNL/Mentoring-Program.git gh-pages
+git push origin gh-pages
