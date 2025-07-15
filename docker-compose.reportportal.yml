@@ -1,7 +1,7 @@
 
 services:
   service-api:
-    image: reportportal/service-api:5.12.1
+    image: reportportal/service-api:5.10.0
     depends_on:
       - postgres
       - rabbitmq
@@ -18,7 +18,7 @@ services:
       - reportportal
 
   service-authorization:
-    image: reportportal/service-authorization:5.13.0
+    image: reportportal/service-authorization:5.10.0
     depends_on:
       - service-api
     environment:
@@ -30,7 +30,7 @@ services:
       - reportportal
 
   service-ui:
-    image: reportportal/service-ui:5.12.1
+    image: reportportal/service-ui:5.10.0
     depends_on:
       - service-api
       - service-authorization

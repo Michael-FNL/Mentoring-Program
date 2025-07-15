@@ -51,8 +51,11 @@ jobs:
             echo "⏳ Still waiting ($i/30)..."
             sleep 5
           done
+      
           echo "❌ ReportPortal did not become ready in time."
-          docker compose -f docker-compose.reportportal.yml logs
+          echo "🔍 Showing Docker logs..."
+          docker compose -f docker-compose.reportportal.yml ps
+          docker compose -f docker-compose.reportportal.yml logs --tail=100
           exit 1
       
       
