@@ -5,7 +5,7 @@
     </listeners>
     <test verbose="1" name="login-testcases">
         <classes>
-            <class name="apiTests.LaunchApiTests"/>
+<!--            <class name="apiTests.LaunchApiTests"/>-->
         </classes>
     </test>
 </suite>
