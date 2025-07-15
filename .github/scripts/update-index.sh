@@ -38,4 +38,4 @@ git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
 git add index.html
 git commit -m "Update index.html [skip ci]" || echo "No changes"
-git push origin HEAD:gh-pages
+git push https://x-access-token:${GH_TOKEN}@github.com/Michael-FNL/Mentoring-Program.git gh-pages
