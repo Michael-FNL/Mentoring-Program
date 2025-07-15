@@ -12,62 +12,66 @@ on:
       - develop
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build-and-test:
+    runs-on: ubuntu-22.04
+    env:
+      REMOTE_URL: http://localhost:4444/wd/hub
+      RUN_MODE: remote
+      HEADLESS_MODE: true
 
     services:
       selenium-hub:
         image: selenium/hub:4.10.0
         ports:
           - 4444:4444
-      chrome:
+      chrome-node:
         image: selenium/node-chrome:4.10.0
-        options: --shm-size=2g
+        options: "--shm-size=2g"
         env:
           SE_EVENT_BUS_HOST: selenium-hub
           SE_EVENT_BUS_PUBLISH_PORT: 4442
           SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Set up JDK
-        uses: actions/setup-java@v3
+      - uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: maven
 
-      - name: Start ReportPortal stack
-        run: docker compose -f docker-compose.reportportal.yml up -d
+      - name: Cache Maven packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
 
-      - name: Wait for ReportPortal API
-        run: |
-          echo "Waiting for ReportPortal API..."
-          for i in {1..90}; do
-            if curl -s http://localhost:8080/api/v1/health; then
-              echo "✅ ReportPortal API is ready."
-              exit 0
-            fi
-            echo "⏳ Still waiting ($i/30)..."
-            sleep 5
-          done
-      
-          echo "❌ ReportPortal did not become ready in time."
-          echo "🔍 Showing Docker logs..."
-          docker compose -f docker-compose.reportportal.yml ps
-          docker compose -f docker-compose.reportportal.yml logs --tail=100
-          exit 1
-      
-      
+      - name: Build without tests
+        run: mvn clean install -DskipTests
 
-      - name: Build and Test
+      - name: Run Checkstyle
+        run: mvn checkstyle:check
+
+      - name: Run tests
+        run: mvn test -DrunMode=${{ env.RUN_MODE }} -DremoteUrl=${{ env.REMOTE_URL }} -DheadlessMode=${{ env.HEADLESS_MODE }}
+
+      - name: Generate Allure Report
+        run: mvn allure:report
+
+      - name: Deploy Allure Report to GitHub Pages
+        if: success()
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target/allure-report
+          publish_branch: gh-pages
+          destination_dir: master/${{ github.run_number }}
+
+      - name: Update GitHub Pages index.html
+        run: bash .github/scripts/update-index.sh
         env:
-          REMOTE_URL: http://localhost:4444/wd/hub
-          RUN_MODE: remote
-          HEADLESS_MODE: true
-          REPORT_PORTAL_URL: http://localhost:8080
-        run: mvn clean test -Dtest=*Test -DrunMode=remote -DremoteUrl=http://localhost:4444/wd/hub -DheadlessMode=true
-
-      - name: Tear down ReportPortal
-        if: always()
-        run: docker compose -f docker-compose.reportportal.yml down
+          GITHUB_REPOSITORY: ${{ github.repository }}

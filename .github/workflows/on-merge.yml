@@ -6,74 +6,67 @@ on:
       - main
       - develop
 
-jobs:
-  test-on-merge:
-    runs-on: ubuntu-latest
+  jobs:
+    build-and-test:
+      runs-on: ubuntu-22.04
+      env:
+        REMOTE_URL: http://localhost:4444/wd/hub
+        RUN_MODE: remote
+        HEADLESS_MODE: true
 
-    steps:
-      - uses: actions/checkout@v3
+      services:
+        selenium-hub:
+          image: selenium/hub:4.10.0
+          ports:
+            - 4444:4444
+        chrome-node:
+          image: selenium/node-chrome:4.10.0
+          options: "--shm-size=2g"
+          env:
+            SE_EVENT_BUS_HOST: selenium-hub
+            SE_EVENT_BUS_PUBLISH_PORT: 4442
+            SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
 
-      - name: Set up JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
+      steps:
+        - uses: actions/checkout@v4
+          with:
+          fetch-depth: 0
 
-      - name: Start ReportPortal stack
-        run: docker compose -f docker-compose.reportportal.yml up -d
+        - uses: actions/setup-java@v3
+          with:
+            java-version: '17'
+            distribution: 'temurin'
+            cache: maven
 
-      - name: Wait for ReportPortal API to be ready
-        run: |
-          echo "Waiting for ReportPortal API..."
-          until curl -sSf http://localhost:8080/api/v1/launch; do
-            sleep 10
-          done
-          echo "ReportPortal is ready"
+        - name: Cache Maven packages
+          uses: actions/cache@v4
+          with:
+            path: ~/.m2
+            key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+            restore-keys: ${{ runner.os }}-m2
 
-      - name: Run Tests with Allure
-        env:
-          REPORT_PORTAL_URL: http://localhost:8080
-        run: mvn clean test
+        - name: Build without tests
+          run: mvn clean install -DskipTests
 
-      - name: Generate Allure Report
-        run: mvn allure:report
+        - name: Run Checkstyle
+          run: mvn checkstyle:check
 
-      - name: Deploy Report to gh-pages
-        if: github.event.pull_request.merged == true
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: target/site/allure-maven-plugin
-          publish_branch: gh-pages
-          destination_dir: pr-${{ github.event.pull_request.number }}
+        - name: Run tests
+          run: mvn test -DrunMode=${{ env.RUN_MODE }} -DremoteUrl=${{ env.REMOTE_URL }} -DheadlessMode=${{ env.HEADLESS_MODE }}
 
-      - name: Checkout gh-pages branch
-        if: github.event.pull_request.merged == true
-        uses: actions/checkout@v3
-        with:
-          ref: gh-pages
-          path: gh-pages
+        - name: Generate Allure Report
+          run: mvn allure:report
 
-      - name: Update index.html
-        if: github.event.pull_request.merged == true
-        run: |
-          cd gh-pages
-          DATE=$(date +%Y-%m-%d_%H-%M)
-          REPORT_LINK="pr-${{ github.event.pull_request.number }}/index.html"
-          echo "<li><a href=\"$REPORT_LINK\">PR #${{ github.event.pull_request.number }} Report $DATE</a></li>" >> index.html
+        - name: Deploy Allure Report to GitHub Pages
+          if: success()
+          uses: peaceiris/actions-gh-pages@v4
+          with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            publish_dir: ./target/allure-report
+            publish_branch: gh-pages
+            destination_dir: pr-report/${{ github.run_number }}
 
-      - name: Commit and Push updated index.html
-        if: github.event.pull_request.merged == true
-        run: |
-          cd gh-pages
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add index.html
-          git commit -m "Add PR #${{ github.event.pull_request.number }} report link $DATE"
-          git push origin gh-pages
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Tear down ReportPortal
-        if: always()
-        run: docker compose -f docker-compose.reportportal.yml down
+        - name: Update GitHub Pages index.html
+          run: bash .github/scripts/update-index.sh
+          env:
+            GITHUB_REPOSITORY: ${{ github.repository }}

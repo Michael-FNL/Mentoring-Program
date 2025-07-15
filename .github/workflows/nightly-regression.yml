@@ -1,36 +1,73 @@
-steps:
-  # ... (checkout, setup JDK, запуск ReportPortal, тестів, генерація Allure)
+name: Nightly Test Job
 
-  - name: Deploy Allure Report to GitHub Pages
-    uses: peaceiris/actions-gh-pages@v3
-    with:
-      github_token: ${{ secrets.GITHUB_TOKEN }}
-      publish_dir: target/site/allure-maven-plugin
-      publish_branch: gh-pages
-      destination_dir: nightly-report  # звіт за поточний запуск
+on:
+  schedule:
+    - cron: '0 5 * * *'
+      workflow_dispatch:
 
-  # Ось сюди додаєш нові кроки для оновлення index.html
-
-  - name: Checkout gh-pages branch
-    uses: actions/checkout@v3
-    with:
-      ref: gh-pages
-      path: gh-pages
-
-  - name: Update index.html
-    run: |
-      cd gh-pages
-      DATE=$(date +%Y-%m-%d_%H-%M)
-      REPORT_LINK="nightly-report/$DATE/index.html"
-      echo "<li><a href=\"$REPORT_LINK\">Test Report $DATE</a></li>" >> index.html
-
-  - name: Commit and Push updated index.html
-    run: |
-      cd gh-pages
-      git config user.name "github-actions"
-      git config user.email "actions@github.com"
-      git add index.html
-      git commit -m "Add new test report link $DATE"
-      git push origin gh-pages
+jobs:
+  nightly-tests:
+    runs-on: ubuntu-22.04
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REMOTE_URL: http://localhost:4444/wd/hub
+      RUN_MODE: remote
+      HEADLESS_MODE: true
+
+    services:
+      selenium-hub:
+        image: selenium/hub:4.10.0
+        ports:
+          - 4444:4444
+      chrome-node:
+        image: selenium/node-chrome:4.10.0
+        options: "--shm-size=2g"
+        env:
+          SE_EVENT_BUS_HOST: selenium-hub
+          SE_EVENT_BUS_PUBLISH_PORT: 4442
+          SE_EVENT_BUS_SUBSCRIBE_PORT: 4443
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+          fetch-depth: 0
+
+    - uses: actions/setup-java@v3
+      with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+    - name: Cache Maven packages
+      uses: actions/cache@v4
+      with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+    - name: Build without tests
+      run: mvn clean install -DskipTests
+
+    - name: Run Checkstyle
+      run: mvn checkstyle:check
+
+    - name: Run tests
+      run: mvn test -DrunMode=${{ env.RUN_MODE }} -DremoteUrl=${{ env.REMOTE_URL }} -DheadlessMode=${{ env.HEADLESS_MODE }}
+
+    - name: Generate Allure Report
+      run: mvn allure:report
+
+    - name: Deploy Allure Report to GitHub Pages
+      if: success()
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./target/allure-report
+          publish_branch: gh-pages
+          destination_dir: nightly/${{ github.run_number }}
+          keep_files: true
+
+    - name: Update GitHub Pages index.html
+      run: bash .github/scripts/update-index.sh
+      env:
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
