@@ -1,11 +1,11 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="Login test" parallel="methods" thread-count="5">
+<suite name="Login test" parallel="methods" thread-count="10">
     <listeners>
         <listener class-name="io.qameta.allure.testng.AllureTestNg"/>
     </listeners>
-    <test verbose="1" name="Launche test cases">
+    <test verbose="1" name="login-testcases">
         <classes>
-            <class name="uiTests.LaunchePageTNGTest"/>
+<!--            <class name="apiTests.LaunchApiTests"/>-->
         </classes>
     </test>
 </suite>

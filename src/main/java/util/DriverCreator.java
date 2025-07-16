@@ -9,18 +9,19 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 
 public class DriverCreator {
-    private static final ThreadLocal<WebDriver> driver = new ThreadLocal<>();
-    private static final ThreadLocal<WebDriverWait> wait = new ThreadLocal<>();
+    public static final int TIMEOUT = 30;
+    private static final ThreadLocal<WebDriver> DRIVER = new ThreadLocal<>();
+    private static final ThreadLocal<WebDriverWait> WAIT = new ThreadLocal<>();
 
     private DriverCreator() {
 
     }
 
     public static WebDriver getDriver() {
-        if (driver.get() == null) {
+        if (DRIVER.get() == null) {
             initializeDriver();
         }
-        return driver.get();
+        return DRIVER.get();
     }
 
     private static void initializeDriver() {
@@ -31,24 +32,23 @@ public class DriverCreator {
             options.addArguments("--headless");
         }
 
-        driver.set(new ChromeDriver(options));
-        WebDriver webDriver = driver.get();
+        DRIVER.set(new ChromeDriver(options));
+        WebDriver webDriver = DRIVER.get();
         webDriver.manage().window().maximize();
-        webDriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(30));
-        //TODO should be refactored
-        wait.set(new WebDriverWait(webDriver, Duration.ofSeconds(30)));
+        webDriver.manage().timeouts().implicitlyWait(Duration.ofSeconds(TIMEOUT));
+        WAIT.set(new WebDriverWait(webDriver, Duration.ofSeconds(TIMEOUT)));
     }
 
     public static WebDriverWait getWait() {
-        return wait.get();
+        return WAIT.get();
     }
 
     public static void quitBrowser() {
-        WebDriver webDriver = driver.get();
+        WebDriver webDriver = DRIVER.get();
         if (webDriver != null) {
             webDriver.quit();
-            driver.remove();
-            wait.remove();
+            DRIVER.remove();
+            WAIT.remove();
         }
     }
 }

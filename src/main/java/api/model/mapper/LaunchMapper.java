@@ -11,7 +11,7 @@ public class LaunchMapper {
         this.objectMapper = new ObjectMapper();
     }
 
-    public LaunchResponse fromJson(String json) {
+    public LaunchResponse fromJson(final String json) {
         try {
             return objectMapper.readValue(json, LaunchResponse.class);
         } catch (JsonProcessingException e) {

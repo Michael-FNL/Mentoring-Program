@@ -16,16 +16,16 @@ public abstract class NavigationMenu<T extends NavigationMenu> extends BaseUiCom
 
     public T openDashboardPage() {
         dashboardsSideBarIcon.click();
-        return (T)this;
+        return (T) this;
     }
 
     public T openLaunchesPage() {
         launchesSideBarIcon.click();
-        return (T)this;
+        return (T) this;
     }
 
     public T openFiltersPage() {
         filtersSideBarIcon.click();
-        return (T)this;
+        return (T) this;
     }
 }

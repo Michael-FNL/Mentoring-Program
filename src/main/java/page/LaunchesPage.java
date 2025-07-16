@@ -6,7 +6,7 @@ import org.openqa.selenium.support.FindBy;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class LaunchesPage extends BasePage{
+public class LaunchesPage extends BasePage {
 
     @FindBy(css = "[class*=allLatestDropdown__arrow]")
     private WebElement filterButton;

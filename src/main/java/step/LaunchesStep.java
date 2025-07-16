@@ -3,6 +3,7 @@ package step;
 import com.epam.reportportal.annotations.Step;
 import dto.FilterOption;
 import page.LaunchesPage;
+import util.LoggingUtil;
 
 import java.util.List;
 
@@ -19,6 +20,8 @@ public class LaunchesStep {
             case LATEST_LAUNCHES:
                 launchesPage.clickLatestLaunchesFilter();
                 break;
+            default:
+                LoggingUtil.log("Error during file reading");
         }
     }
 

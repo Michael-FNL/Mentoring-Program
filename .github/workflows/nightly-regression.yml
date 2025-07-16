@@ -1,21 +1,15 @@
-name: Build TAF
+name: Nightly Test Job
 
 on:
-  push:
-    branches:
-      - main
-      - develop
-      - feature/*
-  pull_request:
-    branches:
-      - main
-      - develop
+  schedule:
+    - cron: '20 10 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build-and-test:
+  nightly-tests:
     runs-on: ubuntu-22.04
     env:
       REMOTE_URL: http://localhost:4444/wd/hub
@@ -72,7 +66,7 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./target/allure-report
           publish_branch: gh-pages
-          destination_dir: master/${{ github.run_number }}
+          destination_dir: nightly/${{ github.run_number }}
           keep_files: true
           enable_jekyll: false
 
