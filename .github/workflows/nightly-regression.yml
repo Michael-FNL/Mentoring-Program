@@ -2,7 +2,7 @@ name: Nightly Test Job
 
 on:
   schedule:
-    - cron: '0 5 * * *'  # Кожен день о 5:00 UTC
+    - cron: '20 10 * * *'
   workflow_dispatch:
 
 permissions:
